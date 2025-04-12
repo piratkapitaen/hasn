@@ -6,8 +6,9 @@ matplotlib
 panel
 bokeh
 param
-pyvista
 stpyvista
+pyvista
+ipywidgets
 colorcet
 requests
 cmocean
@@ -16,5 +17,5 @@ trame
 trame-client
 trame-components
 trame-server
-trame-vtk
+trame_vtk
 trame-vuetify
