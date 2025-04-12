@@ -1,5 +1,6 @@
 pip
 streamlit
+vtk>=9.4.0
 numpy
 matplotlib
 panel
