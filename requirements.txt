@@ -7,7 +7,7 @@ panel
 bokeh
 param
 stpyvista
-pyvista
+pyvista==0.34.2
 ipywidgets
 colorcet
 requests
