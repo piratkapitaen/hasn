@@ -1,7 +1,7 @@
-streamlit
-vtk>=9.4.0  # Explicitly enforce newer VTK first
-pyvista
-stpyvista
-cadquery    # Let this install its dependencies afterward
 numpy
-panel
+matplotlib
+streamlit
+panel==1.3.8
+param
+pyvista
+stpyvista>=0.1.4
