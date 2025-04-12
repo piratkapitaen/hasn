@@ -6,7 +6,8 @@ matplotlib
 panel
 bokeh
 param
-xorg-libxrender
+libgl1
+libglib2.0-0
 stpyvista
 pyvista==0.34.2
 ipywidgets
