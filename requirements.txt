@@ -6,9 +6,7 @@ matplotlib
 panel
 bokeh
 param
-libgl1
-libglib2.0-0
-stpyvista
+stpyvista==0.1.0
 pyvista==0.34.2
 ipywidgets
 colorcet
