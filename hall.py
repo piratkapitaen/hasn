@@ -45,8 +45,8 @@ st.markdown("""
         }
     .copyright {
         position: fixed;
-        bottom: 10px;
-        right: 20px;
+        bottom: 55px;
+        right: 70px;
         font-size: 15px;
         color: black;
         z-index: 100;
