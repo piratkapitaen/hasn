@@ -42,8 +42,19 @@ st.markdown("""
         /* Sidebar-Inhalt ganz oben platzieren */
         section[data-testid="stSidebar"] > div:first-child {
             padding-top: 0rem;
-        }    
+        }
+    .copyright {
+        position: fixed;
+        bottom: 10px;
+        right: 20px;
+        font-size: 15px;
+        color: black;
+        z-index: 100;
+    } 
     </style>
+    <div class="copyright">
+        &copy; v1.4   by MVE, 2025
+    </div>    
     """, unsafe_allow_html=True)
 
 if 'text' not in st.session_state:
@@ -124,7 +135,7 @@ def generate_memory():
         
     memory = []
     # 12 Zeilen mit 4 Hexadezimalzahlen pro Zeile
-    print('Werte: ', int(bw), float(threshold), str(mode) ) # threshold*10 in 0.1mT
+#    print('Werte: ', int(bw), float(threshold), str(mode) ) # threshold*10 in 0.1mT
     bon = int(10 * float(threshold))
     bandwidth = int(bw)
     res = 0
@@ -198,6 +209,7 @@ def generate_memory():
     # Verbinden der Zeilen mit Zeilenumbrüchen
     st.session_state.text = 'EEPROM bytes:   '+arr+ 'HEX String:    ' + hex_string + '\n' + 'Parity: ' + str(parity)+'\n'+my_str
 
+    x_pos = x_plot[600]
     # Channel A and B plots
     ax1.plot(x_plot, y_sin, label='Channel A', alpha=0.4)
     ax1.plot(x_plot, y_sin_hyst, label='OUT1', color='red')
@@ -216,6 +228,10 @@ def generate_memory():
 #    ax2.set_title('Channel B')
     ax2.legend()
     ax2.grid(True)
+    ax1.axvline(x_pos, color='black', linestyle=':', linewidth=1.5, label='direction change')
+    ax2.axvline(x_pos, color='black', linestyle=':', linewidth=1.5)
+    ax1.legend(loc='upper right')
+    ax2.legend(loc='upper right')
 
     if 'fig' in st.session_state:
         st.pyplot(st.session_state['fig'])
@@ -265,15 +281,20 @@ st.text_area('Hello, please make your inputs and generate.  EEPROM contents:', v
 plotter = pv.Plotter(window_size=[300, 300])
 
 # objects
-box = pv.Box(bounds=(-3.0, 3.0, 0, 4.0, -0.5, 0.5), level=4)
+box = pv.Box(bounds=(-4.0, 4.0, 0, 5.0, -0.5, 0.2), level=4)
+box.texture_map_to_plane(use_bounds=False,inplace=True)
+chip =pv.Box(bounds=(-3.7, 3.7, 0.3, 4.7, 0.0, 0.25), level=4)
+chip.texture_map_to_plane(use_bounds=False,inplace=True)
 ft1 = pv.Box(bounds=(-3.0, -2.5, -1.0, 0, -0.5, 0.0), level=4)
 ft2 = pv.Box(bounds=(2.5, 3.0, -1.0, 0, -0.5, 0.0), level=4)
-ft3 = pv.Box(bounds=(-0.25, 0.25, 4.0, 5.0, -0.5, 0.0), level=4)
-cyl1 = pv.Cylinder(center=(0.0, 2.01, 2.8), direction=(0.0, 0.0, 1.0), radius=1.8, height=2.0)
-cyl2 = pv.Cylinder(center=(0.0, 1.99, 2.8), direction=(0.0, 0.0, 1.0), radius=1.802, height=1.99)
+ft3 = pv.Box(bounds=(-0.25, 0.25, 5.0, 6.0, -0.5, 0.0), level=4)
+cyl1 = pv.Cylinder(center=(0.0, 2.01, 3.8), direction=(0.0, 0.0, 1.0), radius=1.8, height=2.0)
+cyl2 = pv.Cylinder(center=(0.0, 1.99, 3.8), direction=(0.0, 0.0, 1.0), radius=1.802, height=1.99)
 
 #cyl1.plot(texture=tex)
 tx = pv.read_texture('magnet.gif')
+chip_tex = pv.read_texture('h.gif')
+chip_bottom = pv.read_texture('kdt.gif')
 #tx.flip_x()
 #tx.flip_y()
 #tx.rotate_ccw()
@@ -283,7 +304,8 @@ tx.repeat = False
 # Create element
 sphere = pv.Sphere(phi_resolution=20, theta_resolution=20)
 #plotter.add_mesh(sphere, name="sphere", show_edges=True)
-plotter.add_mesh(box, color='black')
+plotter.add_mesh(box, texture=chip_bottom)
+plotter.add_mesh(chip, texture=chip_tex)
 plotter.add_mesh(ft1, color='grey')
 plotter.add_mesh(ft2, color='grey')
 plotter.add_mesh(ft3, color='grey')
