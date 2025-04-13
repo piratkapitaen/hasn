@@ -225,7 +225,44 @@ with st.sidebar:
     st.markdown('''
     EEPROM Config generator  
     ''', unsafe_allow_html=True)
-    st.image('static/ic_icon.png', width=100)
+    st.image('static/ic_icon.png', width=90)
+
+st.sidebar.button('Generate', on_click=generate_memory)
+
+bw = st.sidebar.radio(
+    "bandwidth [kHz]:",
+    ["5", "10", "20", "40"])
+threshold = st.sidebar.slider('threshold', min_value=0.5, max_value=12.5, value=2.0, step=0.1)
+#adj = st.sidebar.slider('temp adjust', min_value=-7, max_value=8, value=0, step=1)
+mode = st.sidebar.radio(
+    "mode:",
+    ["speed/speed", "speed/direction"])
+axis = st.sidebar.radio(
+    "axis:",
+    ["XY", "ZX", "ZY"])
+fusi = st.sidebar.radio(
+    "fusi:",
+    ["enabled", "disabled"])
+poweron = st.sidebar.radio(
+    "power on state:",
+    ["high-Z", "low"])
+UID = st.sidebar.radio(
+    "UID:",
+    ["0x00000000", "ckeckerboard: 0x55AA55AA"])
+
+st.image('static/evm.png', width=64)
+txt = '<div class="chat-row">'
+#    div += '<img class="chat-icon" src="./app/static/ai_icon1.png" width=40 height=40>'
+txt += '<div class="chat-bubble ai-bubble">'+'Hello, please make your inputs and generate.\n'+' </div>  </div>'
+  
+#st.markdown(txt, unsafe_allow_html=True)
+add_vertical_space(1)
+st.text_area('Hello, please make your inputs and generate.  EEPROM contents:', value=st.session_state.text, height=370)
+
+
+
+
+
 
 
 
