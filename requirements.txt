@@ -8,3 +8,4 @@ bokeh
 param
 pyvista
 stpyvista
+psutil==6.1.0
