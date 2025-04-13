@@ -10,8 +10,9 @@ import os, time, random, psutil, datetime, pickle, time
 import matplotlib.pyplot as plt
 
 from stpyvista import stpyvista
-from stpyvista.utils import is_the_app_embedded, start_xvfb
 
+## uncomment following lines for streamlit cloud deployment
+from stpyvista.utils import is_the_app_embedded, start_xvfb
 start_xvfb()
 st.session_state.is_app_embedded = st.session_state.get("is_app_embedded", is_the_app_embedded())
 
@@ -262,20 +263,26 @@ st.text_area('Hello, please make your inputs and generate.  EEPROM contents:', v
 
 
 
-
-
-
-
-    
-res = st.slider("Resolution", 5, 100, 20, 5)
-
 # Set up plotter
 plotter = pv.Plotter(window_size=[300, 300])
 
+# objects
+box = pv.Box(bounds=(-3.0, 3.0, 0, 4.0, -0.5, 0.5), level=4)
+ft1 = pv.Box(bounds=(-3.0, -2.5, -1.0, 0, -0.5, 0.0), level=4)
+ft2 = pv.Box(bounds=(2.5, 3.0, -1.0, 0, -0.5, 0.0), level=4)
+ft3 = pv.Box(bounds=(-0.25, 0.25, 0.0, 5.0, -0.5, 0.0), level=4)
+cyl = pv.Cylinder(center=(0.0, 2.0, 2.8), direction=(0.0, 0.0, 1.0), radius=1.8, height=2.0)
+
 # Create element
-sphere = pv.Sphere(phi_resolution=res, theta_resolution=res)
-plotter.add_mesh(sphere, name="sphere", show_edges=True)
+sphere = pv.Sphere(phi_resolution=20, theta_resolution=20)
+#plotter.add_mesh(sphere, name="sphere", show_edges=True)
+plotter.add_mesh(box, color='black')
+plotter.add_mesh(ft1, color='grey')
+plotter.add_mesh(ft2, color='grey')
+plotter.add_mesh(ft3, color='grey')
+plotter.add_mesh(cyl, color='red')
+
 plotter.view_isometric()
 
 # Pass the plotter (not the mesh) to stpyvista
-stpyvista(plotter, key=f"sphere_{res}")
+stpyvista(plotter, key="Hall")
