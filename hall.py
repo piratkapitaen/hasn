@@ -261,17 +261,16 @@ add_vertical_space(1)
 st.text_area('Hello, please make your inputs and generate.  EEPROM contents:', value=st.session_state.text, height=370)
 
 
-
-
-# Set up plotter
+# Set up stpyvista 3D plotter
 plotter = pv.Plotter(window_size=[300, 300])
 
 # objects
 box = pv.Box(bounds=(-3.0, 3.0, 0, 4.0, -0.5, 0.5), level=4)
 ft1 = pv.Box(bounds=(-3.0, -2.5, -1.0, 0, -0.5, 0.0), level=4)
 ft2 = pv.Box(bounds=(2.5, 3.0, -1.0, 0, -0.5, 0.0), level=4)
-ft3 = pv.Box(bounds=(-0.25, 0.25, 0.0, 5.0, -0.5, 0.0), level=4)
-cyl = pv.Cylinder(center=(0.0, 2.0, 2.8), direction=(0.0, 0.0, 1.0), radius=1.8, height=2.0)
+ft3 = pv.Box(bounds=(-0.25, 0.25, 4.0, 5.0, -0.5, 0.0), level=4)
+cyl1 = pv.Cylinder(center=(0.0, 1.98, 2.8), direction=(0.0, 0.0, 1.0), radius=1.8, height=2.0)
+cyl2 = pv.Cylinder(center=(0.0, 2.01, 2.8), direction=(0.0, 0.0, 1.0), radius=1.8, height=1.95)
 
 # Create element
 sphere = pv.Sphere(phi_resolution=20, theta_resolution=20)
@@ -280,7 +279,8 @@ plotter.add_mesh(box, color='black')
 plotter.add_mesh(ft1, color='grey')
 plotter.add_mesh(ft2, color='grey')
 plotter.add_mesh(ft3, color='grey')
-plotter.add_mesh(cyl, color='red')
+plotter.add_mesh(cyl1, color='red')
+plotter.add_mesh(cyl2, color='blue')
 
 plotter.view_isometric()
 
