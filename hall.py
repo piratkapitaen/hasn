@@ -53,7 +53,7 @@ st.markdown("""
     } 
     </style>
     <div class="copyright">
-        &copy; v1.4   by MVE, 2025
+        &copy; v1.5   by MVE, 2025
     </div>    
     """, unsafe_allow_html=True)
 
@@ -132,6 +132,11 @@ def generate_memory():
         y_sin_hyst = hysterese(y_sin, int(1. * float(threshold)), -1.*int(1. * float(threshold)))
         y_cos_hyst = hysterese(y_cos, int(1. * float(threshold)), -1.*int(1. * float(threshold)))
         y_cos_hyst = hys_speed_dir(y_sin_hyst, y_cos_hyst)
+
+
+    if inv!='yes':
+        y_sin_hyst = 10. - y_sin_hyst
+        y_cos_hyst = 10. - y_cos_hyst
         
     memory = []
     # 12 Zeilen mit 4 Hexadezimalzahlen pro Zeile
@@ -160,6 +165,8 @@ def generate_memory():
         res = res | 2
     elif int(bw)==40:
         res = res | 0
+    if inv=='yes':
+        res = res | 192
     memory.append(res);     res = 0;
     memory.append(0);       res = 0;
 
@@ -242,7 +249,7 @@ with st.sidebar:
     st.markdown('''
     EEPROM Config generator  
     ''', unsafe_allow_html=True)
-    st.image('static/ic_icon.png', width=90)
+#    st.image('static/ic_icon.png', width=90)
 
 st.sidebar.button('Generate', on_click=generate_memory)
 
@@ -263,6 +270,9 @@ fusi = st.sidebar.radio(
 poweron = st.sidebar.radio(
     "power on state:",
     ["high-Z", "low"])
+inv = st.sidebar.radio(
+    "outputs inverted:",
+    ["no", "yes"])
 UID = st.sidebar.radio(
     "UID:",
     ["0x00000000", "ckeckerboard: 0x55AA55AA"])
@@ -293,7 +303,7 @@ cyl2 = pv.Cylinder(center=(0.0, 1.99, 3.8), direction=(0.0, 0.0, 1.0), radius=1.
 
 #cyl1.plot(texture=tex)
 tx = pv.read_texture('magnet.gif')
-chip_tex = pv.read_texture('h.gif')
+chip_tex = pv.read_texture('die.gif')
 chip_bottom = pv.read_texture('kdt.gif')
 #tx.flip_x()
 #tx.flip_y()
