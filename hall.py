@@ -6,7 +6,7 @@ import streamlit as st
 from streamlit_extras.add_vertical_space import add_vertical_space
 import streamlit.components.v1 as components
 from helpers import *
-import os, time, random, psutil, datetime, pickle, time
+import os, time, psutil
 import matplotlib.pyplot as plt
 
 from stpyvista import stpyvista
@@ -32,13 +32,6 @@ st.markdown("""
         header {
             visibility: hidden;
         }    
-    /* Entferne Abstand oben von Hauptcontainer */
-    .css-1d391kg {  
-        padding-top: 0rem;
-    }
-    .css-znku1x.e16nr0p33 {
-      margin-top: -75px;
-    }
         /* Sidebar-Inhalt ganz oben platzieren */
         section[data-testid="stSidebar"] > div:first-child {
             padding-top: 0rem;
