@@ -6,7 +6,7 @@ import streamlit as st
 from streamlit_extras.add_vertical_space import add_vertical_space
 import streamlit.components.v1 as components
 from helpers import *
-import os, time, psutil
+import os, time #, psutil
 import matplotlib.pyplot as plt
 
 from stpyvista import stpyvista
