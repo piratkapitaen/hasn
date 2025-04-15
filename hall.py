@@ -43,10 +43,20 @@ st.markdown("""
         font-size: 15px;
         color: black;
         z-index: 100;
-    } 
+    }
+    div[data-baseweb="select"] input {
+        pointer-events: none;
+    }
+    .stSelectbox, .stSlider, .stButton {
+        margin-bottom: 3px;
+    }
+    .stSidebar .block-container {
+        padding-top: 0rem;
+        padding-bottom: 0rem;
+    }    
     </style>
     <div class="copyright">
-        &copy; v1.5   by MVE, 2025
+        &copy; v1.6   by MVE, 2025
     </div>    
     """, unsafe_allow_html=True)
 
@@ -246,17 +256,20 @@ with st.sidebar:
 
 st.sidebar.button('Generate', on_click=generate_memory)
 
-bw = st.sidebar.radio(
-    "bandwidth [kHz]:",
-    ["5", "10", "20", "40"])
+##bw = st.sidebar.radio(
+##    "bandwidth [kHz]:",
+##    ["5", "10", "20", "40"])
+bw = st.sidebar.selectbox("bandwidth [kHz]:", ["5", "10", "20", "40"])
 threshold = st.sidebar.slider('threshold', min_value=0.5, max_value=12.5, value=2.0, step=0.1)
 #adj = st.sidebar.slider('temp adjust', min_value=-7, max_value=8, value=0, step=1)
 mode = st.sidebar.radio(
     "mode:",
     ["speed/speed", "speed/direction"])
-axis = st.sidebar.radio(
-    "axis:",
-    ["XY", "ZX", "ZY"])
+##axis = st.sidebar.radio(
+##    "axis:",
+##    ["XY", "ZX", "ZY"])
+axis = st.sidebar.selectbox("axis:", ["XY", "ZX", "ZY"])
+
 fusi = st.sidebar.radio(
     "fusi:",
     ["enabled", "disabled"])
@@ -316,6 +329,11 @@ plotter.add_mesh(cyl1, texture=tx)
 plotter.add_mesh(cyl2, color='blue')
 
 plotter.view_isometric()
+
+plotter.set_background("skyblue", top="white")
+##plotter.set_background("white")  # optional fallback
+##plotter.add_background_image("fab.gif", as_global=True)
+
 
 # Pass the plotter (not the mesh) to stpyvista
 stpyvista(plotter, key="Hall")
