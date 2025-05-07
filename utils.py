@@ -1,8 +1,8 @@
 import re
-from summa import summarizer
-from sumy.summarizers.lex_rank import LexRankSummarizer
-from sumy.parsers.plaintext import PlaintextParser
-from sumy.nlp.tokenizers import Tokenizer
+#from summa import summarizer
+#from sumy.summarizers.lex_rank import LexRankSummarizer
+#from sumy.parsers.plaintext import PlaintextParser
+#from sumy.nlp.tokenizers import Tokenizer
 
 def summarize(text):
     LANGUAGE = "english"
