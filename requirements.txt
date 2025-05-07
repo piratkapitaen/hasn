@@ -11,3 +11,4 @@ stpyvista
 langchain
 psutil
 together
+sseclient
