@@ -205,7 +205,7 @@ def generate_together_stream(prompt_input):
     prompt = f"""## INSTRUCTION
 I am programming in a Matlab einvironment.
 Generate a script which satisfies the given Question, setting the correct register values regarding the register map.Use also comments in the script as much as possible.
-
+Do not switch to AVDD ratio mode if not explicitly desired.
 
 ## CONTEXT: REGISTER MAP
 +-----------------+---+----+--+----------------------+--------+---+---+----+--+
