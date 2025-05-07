@@ -8,3 +8,6 @@ bokeh
 param
 pyvista
 stpyvista
+langchain
+psutil
+together
