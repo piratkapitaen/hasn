@@ -11,4 +11,3 @@ stpyvista
 langchain
 psutil
 together
-summa
