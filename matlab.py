@@ -191,10 +191,48 @@ if exit_app:
     time.sleep(.3); pid = os.getpid(); p = psutil.Process(pid);  p.terminate();
 company = st.sidebar.text_input('Company:')
 script_key = st.sidebar.text_input('Enter key:', type='password')
-project = st.sidebar.selectbox("project:", ["HASN Matlab", "HASN Verilog", "DSP code"])
+project = st.sidebar.selectbox("project:", ["HASN Matlab", "HASN Verilog"])
 #temperature = st.sidebar.slider('temperature', min_value=0.01, max_value=1.0, value=0.3, step=0.05)
 st.sidebar.image('static/hall_sensor.png', width=122)
 
+
+def generate_bot(prompt_input):
+    os.environ["TOGETHER_API_KEY"] = "b706b09225452b9518a6fbbecf505e6f426d24c614fd8a985ead385362"+ script_key
+    client = Together()  # API key via api_key param or TOGETHER_API_KEY env var
+    stream = client.chat.completions.create(
+#        model="meta-llama/Llama-3.3-70B-Instruct-Turbo", # best model for the case :-))
+#        model="meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo", # laaarge model, very costly...
+        model="meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8", # smallest model, large context 1M size!
+        messages=[{"role": "user", "content": prompt_input}],
+        stream=True,
+    )
+    for chunk in stream:
+        try:
+            content = chunk.choices[0].delta.content #or "", end="", flush=True
+            if content:
+                yield content
+        except Exception as e:
+            continue
+
+def generate_sv(prompt_input):
+    os.environ["TOGETHER_API_KEY"] = "b706b09225452b9518a6fbbecf505e6f426d24c614fd8a985ead385362"+ script_key
+    client = Together()  # API key via api_key param or TOGETHER_API_KEY env var
+    stream = client.chat.completions.create(
+#        model="meta-llama/Llama-3.3-70B-Instruct-Turbo", # best model for the case :-))
+#        model="meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo", # laaarge model, very costly...
+        model="meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8", # smallest model, large context 1M size!
+        messages=[{"role": "user", "content": prompt_input}],
+        stream=True,
+    )
+    prompt = sv_prompt.format(prompt_input)
+    for chunk in stream:
+        try:
+            content = chunk.choices[0].delta.content #or "", end="", flush=True
+            if content:
+                yield content
+        except Exception as e:
+            continue
+        
 def generate_together_stream(prompt_input):
     os.environ["TOGETHER_API_KEY"] = "b706b09225452b9518a6fbbecf505e6f426d24c614fd8a985ead385362"+ script_key
 
@@ -366,10 +404,10 @@ if st.session_state.messages[-1]["role"] != "assistant":
         context = ''
 
         # instantiating the prompt template and the GPT4All chain
-        promptt = PromptTemplate(template=context_template, input_variables=["context", "question"]).partial(context=context)
-        print('PPPROMPT 8: ', promptt)
-        promptt = promptt.format(question=prompt)[:-25]
-        print('PPPROMPT 9: ', promptt)
+##        promptt = PromptTemplate(template=context_template, input_variables=["context", "question"]).partial(context=context)
+##        print('PPPROMPT 8: ', promptt)
+##        promptt = promptt.format(question=prompt)[:-25]
+##        print('PPPROMPT 9: ', promptt)
 
         avatar_placeholder = st.empty()
         placeholder = st.empty()
@@ -387,10 +425,21 @@ if st.session_state.messages[-1]["role"] != "assistant":
             full_response = ''
 #            placeholder.markdown('<div class="chat-row"><img class="chat-icon" src="./app/static/steve.png" width=80 height=95></div>')
             try:
-                for token in generate_together_stream(promptt):
-                    full_response += token
+                if prompt.startswith('##'):
+                    for token in generate_together_stream(prompt[2:]):
+                        full_response += token
+                        placeholder.markdown(full_response)
                     placeholder.markdown(full_response)
-                placeholder.markdown(full_response)
+                elif project[:6] == 'HASN M':
+                    for token in generate_together_stream(prompt):
+                        full_response += token
+                        placeholder.markdown(full_response)
+                    placeholder.markdown(full_response)
+                elif project[:6] == 'HASN V':
+                    for token in generate_sv(prompt):
+                        full_response += token
+                        placeholder.markdown(full_response)
+                    placeholder.markdown(full_response)
             except Exception as e:
                 st.error("❌ A problem eccured generating the response.")
 #                st.exception(e)  # optional für Debug-Zwecke, entferne das im Produktivbetrieb
