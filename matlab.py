@@ -2,6 +2,7 @@ import streamlit as st
 from streamlit_extras.add_vertical_space import add_vertical_space
 import streamlit.components.v1 as components
 from utils import *
+from prompts import *
 import hashlib
 from langchain import PromptTemplate
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
@@ -191,7 +192,7 @@ if exit_app:
     time.sleep(.3); pid = os.getpid(); p = psutil.Process(pid);  p.terminate();
 company = st.sidebar.text_input('Company:')
 script_key = st.sidebar.text_input('Enter key:', type='password')
-project = st.sidebar.selectbox("project:", ["HASN Matlab", "HASN Verilog"])
+project = st.sidebar.selectbox("project:", ["HASN Matlab", "HASN Verilog","HASN RTL Design"])
 #temperature = st.sidebar.slider('temperature', min_value=0.01, max_value=1.0, value=0.3, step=0.05)
 st.sidebar.image('static/hall_sensor.png', width=122)
 
@@ -233,6 +234,25 @@ def generate_sv(prompt_input):
         except Exception as e:
             continue
         
+def generate_rtl(prompt_input):
+    os.environ["TOGETHER_API_KEY"] = "b706b09225452b9518a6fbbecf505e6f426d24c614fd8a985ead385362"+ script_key
+    client = Together()  # API key via api_key param or TOGETHER_API_KEY env var
+    stream = client.chat.completions.create(
+#        model="meta-llama/Llama-3.3-70B-Instruct-Turbo", # best model for the case :-))
+#        model="meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo", # laaarge model, very costly...
+        model="meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8", # smallest model, large context 1M size!
+        messages=[{"role": "user", "content": prompt_input}],
+        stream=True,
+    )
+    prompt = rtl_prompt.format(prompt_input)
+    for chunk in stream:
+        try:
+            content = chunk.choices[0].delta.content #or "", end="", flush=True
+            if content:
+                yield content
+        except Exception as e:
+            continue
+
 def generate_together_stream(prompt_input):
     os.environ["TOGETHER_API_KEY"] = "b706b09225452b9518a6fbbecf505e6f426d24c614fd8a985ead385362"+ script_key
 
@@ -242,7 +262,7 @@ def generate_together_stream(prompt_input):
 
     prompt = f"""## INSTRUCTION
 I am programming in a Matlab einvironment.
-Generate a script which satisfies the given Question, setting the correct register values regarding the register map.Use also comments in the script as much as possible.
+Generate a script which satisfies the given Question, setting the correct register values in the register master: RegMas.Use also comments in the script as much as possible.
 Do not switch to AVDD ratio mode if not explicitly desired.
 
 ## CONTEXT: REGISTER MAP
@@ -371,9 +391,9 @@ ID = DUT.get_ID()
     client = Together()  # API key via api_key param or TOGETHER_API_KEY env var
     
     stream = client.chat.completions.create(
-        model="meta-llama/Llama-3.3-70B-Instruct-Turbo", # best model for the case :-))
+#        model="meta-llama/Llama-3.3-70B-Instruct-Turbo", # best model for the case :-))
 #        model="meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo", # laaarge model, very costly...
-#        model="meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8", # smallest model, large context 1M size!
+        model="meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8", # smallest model, large context 1M size!
 #        model="meta-llama/Llama-4-Scout-17B-16E-Instruct", # smallest model, largest context 10M size!
         messages=[{"role": "user", "content": prompt}],
         stream=True,
@@ -437,6 +457,11 @@ if st.session_state.messages[-1]["role"] != "assistant":
                     placeholder.markdown(full_response)
                 elif project[:6] == 'HASN V':
                     for token in generate_sv(prompt):
+                        full_response += token
+                        placeholder.markdown(full_response)
+                    placeholder.markdown(full_response)
+                elif project[:6] == 'HASN RTL':
+                    for token in generate_rtl(prompt):
                         full_response += token
                         placeholder.markdown(full_response)
                     placeholder.markdown(full_response)
