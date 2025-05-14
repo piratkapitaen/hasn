@@ -6,8 +6,9 @@ from prompts import *
 import hashlib
 from langchain import PromptTemplate
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
-import os, time, random, psutil, requests, json, datetime, re, gzip, difflib, pickle, time, sseclient
+import os, time, random, psutil, requests, datetime, re, gzip, difflib, pickle, time, sseclient
 from together import Together
+from io import BytesIO
 
 prompt_template = """Use the following piece of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer.
 {context}
@@ -182,6 +183,17 @@ for message in st.session_state.messages:
 #        st.markdown(user_markdown(strin[pos:]), unsafe_allow_html=True)
         st.markdown(user_markdown(message["content"]), unsafe_allow_html=True)
 
+def render_diagram(code: str, diagram_type: str = "mermaid") -> BytesIO:
+    """Sende Diagrammcode an Kroki.io und bekomme das Bild zurück als BytesIO"""
+    url = f"https://kroki.io/{diagram_type}/svg"
+    response = requests.post(url, data=code.encode("utf-8"))
+    
+    if response.status_code == 200:
+        return BytesIO(response.content)
+    else:
+        st.error(f"Fehler beim Abrufen des Diagramms: {response.status_code} – {response.text}")
+        return None
+    
 # add clear chat and exit button in sidebar
 def clear_chat_history():
     st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
@@ -374,7 +386,63 @@ Do not switch to AVDD ratio mode if not explicitly desired.
 |                 |   |    |  |   3 |reduce overtemp |    res | 0 | 0 |  W |  | 0: 175°C threshold (default), 1: reduced 120°C over temperature threshold
 |                 |   |    |  | 2:0 | reserved       |        | 0 | 0 |  W |  | reserved
 
-## EXAMPLE
+## EXAMPLE EEPROM programming
+    DUT.write(RegMas.EEP_CTRL_1.eep_en, 1); % enable EEPROM programming mode
+    DUT.write(RegMas.FC_TEST_2.set_avdd, 3, 'Readback',false); %0_11: AVDD = 5.1V EEPROM prog. and margin mode
+    DUT.write(RegMas.EEPROM_0,1); % Program byte 0
+    DUT.write(RegMas.EEPROM_1,14); % Program byte 1
+    DUT.write(RegMas.EEPROM_2,0); % Program byte 2
+    DUT.write(RegMas.EEPROM_3,3); % Program byte 3
+    DUT.write(RegMas.EEPROM_4,192); % Program byte 4
+    DUT.write(RegMas.EEPROM_5,64);  % Program byte 5
+    DUT.write(RegMas.EEPROM_6,192); % Program byte 6
+    DUT.write(RegMas.EEPROM_7,64);  % Program byte 7
+    DUT.write(RegMas.EEPROM_8,0); % Program byte 8
+    DUT.write(RegMas.EEPROM_9,0); % Program byte 9
+    DUT.write(RegMas.EEPROM_A,0); % Program byte 10
+    DUT.write(RegMas.EEPROM_B,0); % Program byte 11
+    DUT.write(RegMas.FC_TEST_2.set_avdd, 0, 'Readback',false); %0_00: AVDD = 2.5V (default)
+    DUT.write(RegMas.EEP_CTRL_1.eep_en, 1); % enable EEPROM programming mode
+    DUT.write(RegMas.FC_TEST_2.set_avdd, 3, 'Readback',false); %0_11: AVDD = 5.1V EEPROM prog. and margin mode
+    DUT.write(RegMas.EEPROM_0,1); % Program byte 0
+    DUT.write(RegMas.EEPROM_1,14); % Program byte 1
+    DUT.write(RegMas.EEPROM_2,0); % Program byte 2
+    DUT.write(RegMas.EEPROM_3,3); % Program byte 3
+    DUT.write(RegMas.EEPROM_4,192); % Program byte 4
+    DUT.write(RegMas.EEPROM_5,64);  % Program byte 5
+    DUT.write(RegMas.EEPROM_6,192); % Program byte 6
+    DUT.write(RegMas.EEPROM_7,64);  % Program byte 7
+    DUT.write(RegMas.EEPROM_8,0); % MIC ID byte 0: default 0
+    DUT.write(RegMas.EEPROM_9,0); % MIC ID byte 1: default 0
+    DUT.write(RegMas.EEPROM_A,0); % MIC ID byte 2: default 0
+    DUT.write(RegMas.EEPROM_B,0); % MIC ID byte 3: default 0
+    DUT.write(RegMas.FC_TEST_2.set_avdd, 0, 'Readback',false); %0_00: AVDD = 2.5V (default)
+
+
+## EXAMPLE: INTERNAL COIL
+DUT.write(RegMas.FC_TEST_1.uv_dis,1,'Readback',false);
+DUT.write(RegMas.FC_TEST_2.set_avdd,2,'Readback',false); % set avdd = 3.0V
+DUT.write(RegMas.FC_TEST_5.pvdd_5v_mode,1,'Readback',false); % Pre-Regulator set 5V mode
+DUT.write(RegMas.FC_TEST_4.coil_curr,3,'Readback',false); % set to 3: 40mA 
+% do measurements
+DUT.write(RegMas.FC_TEST_4.coil_curr,0,'Readback',false); % set to 0mA back again
+
+## EXAMPLE: Read in ONE SHOT ADC MODE
+%% Read accu via oneshot method
+%DUT.write(RegMas.ADC_IIR_CTRL.adc_one_shot,0, 'Readback', false)
+DUT.write(RegMas.ADC_IIR_CTRL.adc_en,0)
+
+DUT.write(RegMas.ADC_IIR_CTRL.adc_one_shot,1, 'Readback', false)
+
+accu_msb= DUT.read(RegMas.ADC_ACCU_MSB);
+accu_lsb= DUT.read(RegMas.ADC_LSB.adc_accu_lsb);
+msb=accu_msb*64;
+lsb=bitand(accu_lsb,63);
+accu=msb+lsb;
+accu_signed=twoscomp(accu,14);
+
+
+## EXAMPLE CODE
 DUT.read(RegMas.EEPROM_A); % example register read
 DUT.write(RegMas.FC_TEST_4.coil_pol,1,'Readback',false); % example register write with initial read
 DUT.write(RegMas.FC_TEST_4,0b00000000,'writeOnce',true);  % write command w/o read back, “fire and forget”
