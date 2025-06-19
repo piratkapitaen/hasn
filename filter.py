@@ -110,7 +110,16 @@ def generate_filter():
     x = x + amp_noise * np.random.randn(*x.shape)   # add noise to the signal
     x = np.repeat(x, repeats=PADDING + 1)           # oversampling: repeat samples N times
 
-    K = 2
+    # K is shiftfactor
+    if alpha.find('2') >= 0:
+        K = 1
+    elif alpha.find('4') >= 0:
+        K = 2
+    elif alpha.find('8') >= 0:
+        K = 3
+    else:
+        K = 2
+
     EMA_no_round = EMA_shift_no_round(K)            # calculate filter
 #    EMA_round = EMA_round(K)
     EMA_hw = EMA_shift_no_round_HWlike(K,accubits)        # calculate filter similar to digital hardware
@@ -263,6 +272,7 @@ st.sidebar.button('Generate', on_click=generate_filter)
 
 #i_bits = st.sidebar.selectbox("input_bits (signed):", ["8","9","10","11","12","13","14","15","16"])
 accu_bits = st.sidebar.selectbox("Accu width (signed):", ["9","10","11","12","13","14","15","16"])
+alpha = st.sidebar.selectbox("alpha:", ["1/2","1/4","1/8"])
 ov = st.sidebar.selectbox("oversampling:", ["0", "1", "2", "3","4","6"])
 sig = st.sidebar.selectbox("signal:", ["test", "sine", "impulse", "rect"])
 
