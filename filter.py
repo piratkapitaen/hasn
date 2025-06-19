@@ -62,7 +62,7 @@ st.markdown("""
     }    
     </style>
     <div class="copyright">
-        &copy; v1.2   by Chipguru, 2025
+        &copy; v1.2   by NeuroCode, 2025
     </div>    
     """, unsafe_allow_html=True)
 
