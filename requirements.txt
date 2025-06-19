@@ -1,5 +1,5 @@
 pip
-streamlit==1.40.0
+streamlit==1.43.0
 streamlit_extras
 numpy
 matplotlib
