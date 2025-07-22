@@ -104,11 +104,15 @@ def generate_filter():
     elif sig=='impulse':
         x = np.zeros((64,))
         x[1] = int(amp)
+    elif sig=='ramp':
+        x = np.arange(0, 100, 4)
     else:
         x = np.concatenate((np.zeros((16,)), amp *np.ones((16,)), np.zeros((16,)), amp *np.ones((16,))))
         
     x = x + amp_noise * np.random.randn(*x.shape)   # add noise to the signal
     x = np.repeat(x, repeats=PADDING + 1)           # oversampling: repeat samples N times
+
+    x = np.round(x).astype(int)
 
     # K is shiftfactor
     if alpha.find('2') >= 0:
@@ -119,6 +123,18 @@ def generate_filter():
         K = 3
     else:
         K = 2
+
+    if truncation == '0':
+        pass
+    elif truncation == '1':
+        n = 1
+        x = x & (~((1 << n) - 1))
+    elif truncation == '2':
+        n = 2
+        x = x & (~((1 << n) - 1))
+    elif truncation == '3':
+        n = 3
+        x = x & (~((1 << n) - 1))
 
     EMA_no_round = EMA_shift_no_round(K)            # calculate filter
 #    EMA_round = EMA_round(K)
@@ -274,7 +290,7 @@ st.sidebar.button('Generate', on_click=generate_filter)
 accu_bits = st.sidebar.selectbox("Accu width (signed):", ["9","10","11","12","13","14","15","16"])
 alpha = st.sidebar.selectbox("alpha:", ["1/2","1/4","1/8"])
 ov = st.sidebar.selectbox("oversampling:", ["0", "1", "2", "3","4","6"])
-sig = st.sidebar.selectbox("signal:", ["test", "sine", "impulse", "rect"])
+sig = st.sidebar.selectbox("signal:", ["test", "sine", "impulse", "rect", "ramp"])
 
 ##exit_app = st.sidebar.button("Exit App")
 ##if exit_app:
@@ -283,9 +299,11 @@ sig = st.sidebar.selectbox("signal:", ["test", "sine", "impulse", "rect"])
 amp = st.sidebar.slider('Amplitude', min_value=62, max_value=1023, value=110, step=1)
 amp_noise = st.sidebar.slider('Noise Amplitude', min_value=0, max_value=32, value=3, step=1)
 #adj = st.sidebar.slider('temp adjust', min_value=-7, max_value=8, value=0, step=1)
-mode = st.sidebar.radio(
-    "mode:",
-    ["EMA", "SMA"])
+##mode = st.sidebar.radio(
+##    "mode:",
+##    ["EMA", "SMA"])
+truncation = st.sidebar.selectbox("truncate:", ["0", "1", "2", "3"])
+
 
 st.image('static/hacker2.png', width=64)
 txt = '<div class="chat-row">'
